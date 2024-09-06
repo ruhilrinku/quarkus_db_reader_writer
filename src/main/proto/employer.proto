@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+import "google/api/annotations.proto";
+
+option java_multiple_files = true;
+option java_package = "com.brightly.ca.grpc.employer";
+option java_outer_classname = "EmployerProto";
+
+package employer;
+
+service EmployerGrpcService {
+
+  rpc createEmployer(EmployerDetail) returns (google.protobuf.StringValue) {}
+
+  rpc updateEmployer(EmployerDetail) returns (google.protobuf.StringValue) {}
+
+  rpc deleteEmployer(EmployerCodeRequest) returns (google.protobuf.StringValue) {}
+
+  rpc getEmployerByCode(EmployerCodeRequest) returns (EmployerDetail) {}
+
+  rpc getAllActiveEmployers(google.protobuf.Empty) returns (EmployerDetailList) {}
+
+  rpc getAllEmployers(google.protobuf.Empty) returns (EmployerDetailList) {}
+
+}
+
+message EmployerCodeRequest {
+  google.protobuf.StringValue employerCode = 1;
+}
+
+message EmployerDetail {
+  string code = 1;
+  string name = 2;
+  bool is_active = 3;
+}
+
+message EmployerDetailList {
+  repeated EmployerDetail employers = 1;
+}
