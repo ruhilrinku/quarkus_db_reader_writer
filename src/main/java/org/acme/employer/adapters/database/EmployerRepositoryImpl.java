@@ -2,10 +2,6 @@ package org.acme.employer.adapters.database;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.acme.employer.adapters.database.reader.EmployerReaderDataModel;
-import org.acme.employer.adapters.database.reader.EmployerReaderDatabaseRepository;
-import org.acme.employer.adapters.database.writer.EmployerWriterDataModel;
-import org.acme.employer.adapters.database.writer.EmployerWriterDatabaseRepository;
 import org.acme.employer.domain.model.EmployerDomainModel;
 import org.acme.employer.domain.port.EmployerRepository;
 
@@ -15,17 +11,14 @@ import java.util.UUID;
 @ApplicationScoped
 public class EmployerRepositoryImpl implements EmployerRepository {
     @Inject
-    EmployerWriterDatabaseRepository employerWriterDatabaseRepository;
-
-    @Inject
-    EmployerReaderDatabaseRepository employerReaderDatabaseRepository;
+    EmployerDatabaseRepository employerDatabaseRepository;
 
     @Override
     public EmployerDomainModel createEmployer(EmployerDomainModel employerDomainModel) {
-        EmployerWriterDataModel employerDataModel = EmployerDataModelConverter.toEmployerDataModel(employerDomainModel);
-        System.out.println("Repository Identifier: " + employerWriterDatabaseRepository.getName());
+        EmployerDataModel employerDataModel = EmployerDataModelConverter.toEmployerDataModel(employerDomainModel);
+        System.out.println("Repository Identifier: " + employerDatabaseRepository.getName());
         try {
-            employerWriterDatabaseRepository.persistAndFlush(employerDataModel);
+            employerDatabaseRepository.persistAndFlush(employerDataModel);
         } catch (Exception ex) {
             ex.printStackTrace();
             throw new RuntimeException(ex);
@@ -35,7 +28,7 @@ public class EmployerRepositoryImpl implements EmployerRepository {
 
     @Override
     public EmployerDomainModel updateEmployer(EmployerDomainModel employerDomainModel) {
-        EmployerWriterDataModel employerDataModel = getEmployerDataModel(employerDomainModel.getCode());
+        EmployerDataModel employerDataModel = getEmployerDataModel(employerDomainModel.getCode());
 
         if (employerDataModel == null)
             throw new RuntimeException("Employer not found with code !!");
@@ -45,14 +38,14 @@ public class EmployerRepositoryImpl implements EmployerRepository {
         if (employerDomainModel.getIsActive() != null)
             employerDataModel.setIsActive(employerDomainModel.getIsActive());
 
-        employerWriterDatabaseRepository.persistAndFlush(employerDataModel);
+        employerDatabaseRepository.persistAndFlush(employerDataModel);
 
         return EmployerDataModelConverter.toEmployerDomainModel(employerDataModel);
     }
 
     @Override
     public EmployerDomainModel getEmployerByCode(String code) {
-        EmployerReaderDataModel employerDataModel = employerReaderDatabaseRepository
+        EmployerDataModel employerDataModel = employerDatabaseRepository
                 .find(Query.SELECT_EMPLOYER_BY_CODE, code).firstResult();
 
         return EmployerDataModelConverter.toEmployerDomainModel(employerDataModel);
@@ -60,16 +53,16 @@ public class EmployerRepositoryImpl implements EmployerRepository {
 
     @Override
     public EmployerDomainModel getEmployerByName(String name) {
-        EmployerReaderDataModel employerDataModel = getEmployerDataModelByName(name);
+        EmployerDataModel employerDataModel = getEmployerDataModelByName(name);
         return EmployerDataModelConverter.toEmployerDomainModel(employerDataModel);
     }
 
     @Override
     public List<EmployerDomainModel> getEmployers() {
-        System.out.println("Repository Identifier: " + employerReaderDatabaseRepository.getName());
+        System.out.println("Repository Identifier: " + employerDatabaseRepository.getName());
 
         try {
-            List<EmployerReaderDataModel> employerReaderDataModels = employerReaderDatabaseRepository.findAll().stream().toList();
+            List<EmployerDataModel> employerReaderDataModels = employerDatabaseRepository.findAll().stream().toList();
 
             return employerReaderDataModels.stream().map(EmployerDataModelConverter::toEmployerDomainModel).toList();
         } catch (Exception ex) {
@@ -80,8 +73,8 @@ public class EmployerRepositoryImpl implements EmployerRepository {
 
     @Override
     public List<EmployerDomainModel> getAllActiveEmployers() {
-        System.out.println("Repository Identifier: " + employerReaderDatabaseRepository.getName());
-        return employerReaderDatabaseRepository.find(Query.SELECT_ALL_ACTIVE_EMPLOYERS)
+        System.out.println("Repository Identifier: " + employerDatabaseRepository.getName());
+        return employerDatabaseRepository.find(Query.SELECT_ALL_ACTIVE_EMPLOYERS)
                 .stream()
                 .map(EmployerDataModelConverter::toEmployerDomainModel)
                 .toList();
@@ -89,28 +82,28 @@ public class EmployerRepositoryImpl implements EmployerRepository {
 
     @Override
     public UUID deleteEmployer(String code) {
-        EmployerWriterDataModel employerDataModel = employerWriterDatabaseRepository.find("code", code)
+        EmployerDataModel employerDataModel = employerDatabaseRepository.find("code", code)
                 .firstResult();
 
         if (employerDataModel == null)
             throw new RuntimeException("Employer not found with code !!");
 
         employerDataModel.setDeletedId(employerDataModel.getId());
-        employerWriterDatabaseRepository.persistAndFlush(employerDataModel);
+        employerDatabaseRepository.persistAndFlush(employerDataModel);
         return employerDataModel.getId();
     }
 
     @Override
-    public EmployerReaderDataModel getEmployerDataModelByCode(String code) {
-        return employerReaderDatabaseRepository.find(Query.SELECT_EMPLOYER_BY_CODE, code).firstResult();
+    public EmployerDataModel getEmployerDataModelByCode(String code) {
+        return employerDatabaseRepository.find(Query.SELECT_EMPLOYER_BY_CODE, code).firstResult();
     }
 
-    private EmployerWriterDataModel getEmployerDataModel(String code) {
-        return employerWriterDatabaseRepository.find(Query.SELECT_ALL_ACTIVE_EMPLOYERS, code).firstResult();
+    private EmployerDataModel getEmployerDataModel(String code) {
+        return employerDatabaseRepository.find(Query.SELECT_ALL_ACTIVE_EMPLOYERS, code).firstResult();
     }
 
-    private EmployerReaderDataModel getEmployerDataModelByName(String name) {
-        return employerReaderDatabaseRepository
+    private EmployerDataModel getEmployerDataModelByName(String name) {
+        return employerDatabaseRepository
                 .find("name = ?1", name).firstResult();
     }
 

@@ -12,7 +12,9 @@ package employer;
 
 service EmployerGrpcService {
 
-  rpc createEmployer(EmployerDetail) returns (google.protobuf.StringValue) {}
+  rpc createEmployerWithReadOnly(EmployerDetail) returns (google.protobuf.StringValue) {}
+
+  rpc createEmployerWithReadWrite(EmployerDetail) returns (google.protobuf.StringValue) {}
 
   rpc updateEmployer(EmployerDetail) returns (google.protobuf.StringValue) {}
 

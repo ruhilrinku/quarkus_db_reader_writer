@@ -1,4 +1,4 @@
-package org.acme.employer.adapters.database.writer;
+package org.acme.employer.adapters.database;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,7 +14,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class EmployerWriterDataModel implements Serializable {
+public class EmployerDataModel implements Serializable {
 
     @Id
     @GeneratedValue(generator = "uuid-generator", strategy = GenerationType.IDENTITY)

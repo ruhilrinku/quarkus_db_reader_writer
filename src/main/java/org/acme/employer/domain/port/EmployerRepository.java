@@ -1,7 +1,7 @@
 package org.acme.employer.domain.port;
 
 
-import org.acme.employer.adapters.database.reader.EmployerReaderDataModel;
+import org.acme.employer.adapters.database.EmployerDataModel;
 import org.acme.employer.domain.model.EmployerDomainModel;
 
 import java.util.List;
@@ -23,6 +23,6 @@ public interface EmployerRepository {
 
     UUID deleteEmployer(String code);
 
-    EmployerReaderDataModel getEmployerDataModelByCode(String code);
+    EmployerDataModel getEmployerDataModelByCode(String code);
 
 }

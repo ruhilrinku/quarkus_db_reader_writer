@@ -9,6 +9,7 @@ import com.google.protobuf.StringValue;
 import io.quarkus.grpc.GrpcService;
 import io.smallrye.mutiny.Uni;
 import jakarta.transaction.Transactional;
+import org.acme.employer.common.ReadWrite;
 import org.acme.employer.domain.model.EmployerDomainModel;
 import org.acme.employer.domain.model.EmployerDomainService;
 
@@ -25,7 +26,7 @@ public class EmployerGrpcResource implements EmployerGrpcService {
     }
 
     @Override
-    public Uni<StringValue> createEmployer(EmployerDetail request) {
+    public Uni<StringValue> createEmployerWithReadOnly(EmployerDetail request) {
         EmployerDomainModel employerDomainModel =
                 EmployerDomainModelConverter.toEmployerDomainModel(request);
 
@@ -34,6 +35,18 @@ public class EmployerGrpcResource implements EmployerGrpcService {
         return Uni.createFrom().item(StringValue.of(empCode));
     }
 
+    @ReadWrite
+    @Override
+    public Uni<StringValue> createEmployerWithReadWrite(EmployerDetail request) {
+        EmployerDomainModel employerDomainModel =
+                EmployerDomainModelConverter.toEmployerDomainModel(request);
+
+        String empCode = employerDomainService.createEmployer(employerDomainModel);
+
+        return Uni.createFrom().item(StringValue.of(empCode));
+    }
+
+    @ReadWrite
     @Override
     public Uni<StringValue> updateEmployer(EmployerDetail request) {
         EmployerDomainModel employerDomainModel =
@@ -79,6 +92,7 @@ public class EmployerGrpcResource implements EmployerGrpcService {
                         .build());
     }
 
+    @ReadWrite
     @Override
     public Uni<StringValue> deleteEmployer(EmployerCodeRequest employerCodeRequest) {
         boolean isDeleted = employerDomainService.deleteEmployer(employerCodeRequest.getEmployerCode().getValue());
